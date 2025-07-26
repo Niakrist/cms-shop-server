@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 @Module({
-  imports: [ConfigModule.forRoot()], // подключение ConfigModule для работы .env
+  imports: [ConfigModule.forRoot(), AuthModule, UserModule], // подключение ConfigModule для работы .env
 })
 export class AppModule {}

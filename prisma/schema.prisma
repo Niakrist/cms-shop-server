@@ -1,6 +1,7 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  // output   = "../generated/prisma"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -11,7 +12,7 @@ datasource db {
 model User {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now()) @map("created_at")
-  upadateAt DateTime @updatedAt @map("upadate_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   email    String  @unique
   password String? // не обязательное поле так как может быть авторизация oauth2.0
@@ -97,7 +98,7 @@ model Color {
   value String
 
   products Product[] // У каждого Color может быть несколько Products
-  store    Store?    @relation(fields: [storeId], references: [id]) // У каждой Color может быть 1 Store
+  stores   Store?    @relation(fields: [storeId], references: [id]) // У каждой Color может быть 1 Store
   storeId  String?   @map("store_id")
 
   @@map("color")
