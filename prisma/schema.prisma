@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -12,4 +6,156 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  upadateAt DateTime @updatedAt @map("upadate_at")
+
+  email    String  @unique
+  password String? // не обязательное поле так как может быть авторизация oauth2.0
+
+  name    String @default("Не указано")
+  picture String @default("/uploads/no-user-images.png")
+
+  stores    Store[] // У каждого User может быть несколько Stores
+  favorites Product[] // У каждого User может быть несколько любимых Products
+  rewiews   Rewiew[] // У каждого User может быть несколько Rewiews
+  orders    Order[] // У каждого User может быть несколько Orders
+
+  @@map("user")
+}
+
+model Store {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  title       String
+  description String?
+
+  user   User?   @relation(fields: [userId], references: [id]) // У Store магазина может быть 1 User 
+  userId String? @map("user_id")
+
+  products   Product[] // У каждого Store может быть несколько Products
+  categories Category[] // У каждого Store может быть несколько Categorys
+  colors     Color[] // У каждого Store может быть несколько Colors
+  rewiews    Rewiew[] // У каждого Store может быть несколько Rewiews
+  orderItems OrderItem[] // У каждого Store может быть несколько OrderItems
+
+  @@map("store")
+}
+
+model Product {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  title       String
+  description String
+  price       Int
+  images      String[]
+
+  rewiews    Rewiew[] // У каждого Product может быть несколько Rewiews
+  orderItems OrderItem[] // У каждого Product может быть несколько OrderItems
+
+  store      Store?    @relation(fields: [storeId], references: [id]) // У каждого Product может быть 1 Store 
+  storeId    String?   @map("store_id")
+  category   Category? @relation(fields: [categoryId], references: [id]) // У каждого Product может быть 1 Category
+  categoryId String?   @map("category_id")
+  color      Color?    @relation(fields: [colorId], references: [id]) // У каждого Product может быть 1 Color
+  colorId    String?   @map("color_id")
+  User       User?     @relation(fields: [userId], references: [id])
+  userId     String?
+
+  @@map("product")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  title       String
+  description String
+
+  products Product[] // У каждой Category может быть несколько Products
+
+  store   Store?  @relation(fields: [storeId], references: [id]) // У каждой Category может быть 1 Store
+  storeId String? @map("store_id")
+
+  @@map("category")
+}
+
+model Color {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  name  String
+  value String
+
+  products Product[] // У каждого Color может быть несколько Products
+  store    Store?    @relation(fields: [storeId], references: [id]) // У каждой Color может быть 1 Store
+  storeId  String?   @map("store_id")
+
+  @@map("color")
+}
+
+model Rewiew {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  text   String
+  rating Int
+
+  user      User?    @relation(fields: [userId], references: [id]) // У каждого Rewiew может быть 1 User
+  userId    String?  @map("user_id")
+  product   Product? @relation(fields: [productId], references: [id]) // У каждого Rewiew может быть 1 Product
+  productId String?  @map("product_id")
+  store     Store?   @relation(fields: [storeId], references: [id]) // У каждого Rewiew может быть 1 Store
+  storeId   String?  @map("store_id")
+
+  @@map("rewiew")
+}
+
+model Order {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  status EnumOrderStatus @default(PENDING)
+
+  items OrderItem[] // У каждого Order может быть несколько OrderItems
+  total Int
+
+  user   User?   @relation(fields: [userId], references: [id]) // У каждого Order может быть 1 User
+  userId String? @map("user_id")
+
+  @@map("order")
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  quantity Int
+  price    Int
+
+  order     Order?   @relation(fields: [orderId], references: [id]) // У каждого OrderItem может быть 1 Order
+  orderId   String?  @map("order_id")
+  product   Product? @relation(fields: [productId], references: [id]) // У каждого OrderItem может быть 1 Product
+  productId String?  @map("product_id")
+  store     Store?   @relation(fields: [storeId], references: [id]) // У каждого OrderItem может быть 1 Store
+  storeId   String?  @map("store_id")
+
+  @@map("order_item")
+}
+
+enum EnumOrderStatus {
+  PENDING
+  PAYED
 }
