@@ -12,7 +12,6 @@ export class UserService {
       where: { id },
       include: { stores: true, favorites: true, orders: true },
     });
-    console.log('getById', user);
     return user;
   }
   async getByEmail(email: string) {
@@ -20,7 +19,6 @@ export class UserService {
       where: { email },
       include: { stores: true, favorites: true, orders: true },
     });
-    console.log('getByEmail', user);
     return user;
   }
   async create(dto: AuthDto) {
@@ -34,7 +32,6 @@ export class UserService {
   }
   async getAll() {
     const users = await this.prisma.user.findMany();
-    console.log('getAll2', users);
     return users;
   }
 }
