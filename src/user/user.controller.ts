@@ -1,26 +1,24 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Controller, Get, Param, Patch } from '@nestjs/common';
 import { UserService } from './user.service';
-import { AuthDto } from 'src/auth/auth.dto';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { CurrentUser } from './decorators/user.decorator';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get('id/:id')
-  async getById(@Param('id') id: string) {
+  @Auth()
+  @Get('profile')
+  async getProfile(@CurrentUser('id') id: string) {
     return this.userService.getById(id);
   }
-  @Get('email/:email')
-  async getByEmail(@Param('email') email: string) {
-    return this.userService.getByEmail(email);
-  }
-  @Get()
-  async getAll() {
-    return this.userService.getAll();
-  }
 
-  @Post()
-  async create(@Body() dto: AuthDto) {
-    return this.userService.create(dto);
+  @Auth()
+  @Patch('profile/favorites/:productId')
+  async toggleFavorite(
+    @CurrentUser('id') userId: string,
+    @Param('productId') productId: string,
+  ) {
+    return this.userService.toggleFavotite(productId, userId);
   }
 }
