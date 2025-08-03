@@ -1,7 +1,27 @@
-import { Controller } from '@nestjs/common';
+import {
+  Controller,
+  HttpCode,
+  Post,
+  Query,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FileService } from './file.service';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
-@Controller('file')
+@Controller('files')
 export class FileController {
   constructor(private readonly fileService: FileService) {}
+
+  @HttpCode(200)
+  @UseInterceptors(FilesInterceptor('files'))
+  @Auth()
+  @Post()
+  async uploadsFiles(
+    @UploadedFiles() files: Express.Multer.File[],
+    @Query('folder') folder?: string,
+  ) {
+    return this.fileService.saveFile(files, folder);
+  }
 }
