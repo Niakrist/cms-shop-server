@@ -14,13 +14,13 @@ import { ColorService } from './color.service';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { ColorDto } from './dto/color.dto';
 
-@Controller(' ')
+@Controller('colors')
 export class ColorController {
   constructor(private readonly colorService: ColorService) {}
 
   @Auth()
   @Get('by-color/:storeId')
-  async getByStoreId(@Param('id') storeId: string) {
+  async getByStoreId(@Param('storeId') storeId: string) {
     return this.colorService.getByStoreId(storeId);
   }
 
